@@ -3,6 +3,7 @@ const context = canvas.getContext("2d");
 const scoreDisplay = document.getElementById("score");
 const messageDisplay = document.getElementById("game-message");
 const restartButton = document.getElementById("restart-button");
+const directionButtons = document.querySelectorAll(".direction-button");
 
 const cellSize = 20;
 const boardSize = canvas.width / cellSize;
@@ -15,6 +16,14 @@ let nextDirection;
 let score;
 let gameOver;
 let gameTimer;
+let swipeStart = null;
+
+const keyDirections = {
+  ArrowUp: { x: 0, y: -1 },
+  ArrowDown: { x: 0, y: 1 },
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+};
 
 function startGame() {
   clearInterval(gameTimer);
@@ -28,7 +37,7 @@ function startGame() {
   score = 0;
   gameOver = false;
   scoreDisplay.textContent = score;
-  messageDisplay.textContent = "Use the arrow keys to move.";
+  messageDisplay.textContent = "Use the arrow keys, swipe, or touch controls to move.";
   placeFood();
   drawGame();
   gameTimer = setInterval(updateGame, gameSpeed);
@@ -97,22 +106,48 @@ function endGame() {
 }
 
 document.addEventListener("keydown", (event) => {
-  const keyDirections = {
-    ArrowUp: { x: 0, y: -1 },
-    ArrowDown: { x: 0, y: 1 },
-    ArrowLeft: { x: -1, y: 0 },
-    ArrowRight: { x: 1, y: 0 },
-  };
   const requestedDirection = keyDirections[event.key];
 
   if (!requestedDirection) return;
   event.preventDefault();
 
+  changeDirection(requestedDirection);
+});
+
+function changeDirection(requestedDirection) {
+  if (gameOver) return;
+
   const isOpposite =
     requestedDirection.x === -direction.x && requestedDirection.y === -direction.y;
-  if (!isOpposite && !gameOver) {
-    nextDirection = requestedDirection;
-  }
+  if (!isOpposite) nextDirection = requestedDirection;
+}
+
+directionButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    changeDirection(keyDirections[button.dataset.direction]);
+  });
+});
+
+canvas.addEventListener("pointerdown", (event) => {
+  swipeStart = { x: event.clientX, y: event.clientY };
+});
+
+canvas.addEventListener("pointerup", (event) => {
+  if (!swipeStart) return;
+
+  const deltaX = event.clientX - swipeStart.x;
+  const deltaY = event.clientY - swipeStart.y;
+  swipeStart = null;
+
+  if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) < 20) return;
+  const key = Math.abs(deltaX) > Math.abs(deltaY)
+    ? (deltaX > 0 ? "ArrowRight" : "ArrowLeft")
+    : (deltaY > 0 ? "ArrowDown" : "ArrowUp");
+  changeDirection(keyDirections[key]);
+});
+
+canvas.addEventListener("pointercancel", () => {
+  swipeStart = null;
 });
 
 restartButton.addEventListener("click", startGame);

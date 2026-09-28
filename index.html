@@ -13,7 +13,13 @@
     <div class="score" aria-live="polite">Score: <span id="score">0</span></div>
     <canvas id="game-board" width="400" height="400" aria-label="Snake game board"></canvas>
 
-    <p id="game-message" class="message" aria-live="polite">Use the arrow keys to move.</p>
+    <div class="mobile-controls" role="group" aria-label="Touch controls">
+      <button class="direction-button direction-up" type="button" data-direction="ArrowUp" aria-label="Move up">&#8593;</button>
+      <button class="direction-button direction-left" type="button" data-direction="ArrowLeft" aria-label="Move left">&#8592;</button>
+      <button class="direction-button direction-down" type="button" data-direction="ArrowDown" aria-label="Move down">&#8595;</button>
+      <button class="direction-button direction-right" type="button" data-direction="ArrowRight" aria-label="Move right">&#8594;</button>
+    </div>
+    <p id="game-message" class="message" aria-live="polite">Use the arrow keys or touch controls to move.</p>
     <button id="restart-button" type="button">Restart Game</button>
   </main>
 
